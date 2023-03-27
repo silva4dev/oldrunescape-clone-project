@@ -31,7 +31,7 @@ export function App() {
     <div className={classes.wrapper}>
       <div className={classes.container}>
         <div className={classes.header}>
-          <img src={logo} alt="logo" />
+          <img src={logo} alt="logoo" />
         </div>
       </div>
     </div>
