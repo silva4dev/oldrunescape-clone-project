@@ -1,6 +1,6 @@
 import { makeStyles } from "@fluentui/react-components";
 import backgroundImage from "./assets/images/background.jpg";
-import logo from "./assets/images/logo.png";
+import brand from "./assets/images/brand.png";
 
 const useStyles = makeStyles({
   wrapper: {
@@ -31,7 +31,7 @@ export function App() {
     <div className={classes.wrapper}>
       <div className={classes.container}>
         <div className={classes.header}>
-          <img src={logo} alt="logo" />
+          <img src={brand} alt="brand" />
         </div>
       </div>
     </div>
