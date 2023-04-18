@@ -5,7 +5,7 @@ import React from "react";
 
 const useStyles = makeStyles({
   wrapper: {
-    height: "100%",
+    minHeight: "100vh",
     backgroundColor: "#000",
     color: "#fff",
   },
@@ -16,11 +16,11 @@ const useStyles = makeStyles({
     marginLeft: "auto",
     marginRight: "auto",
     paddingTop: "40px",
-    paddingBottom: "40px",
-    height: "calc(100vh + 50px)",
     backgroundImage: `url(${backgroundImage})`,
     backgroundPositionX: "center",
     backgroundPositionY: "top",
+    minHeight: "100vh",
+    paddingBottom: "100px",
   },
   header: {
     width: "max-content",
@@ -35,9 +35,10 @@ const useStyles = makeStyles({
 });
 
 export function App() {
-  const styles = useStyles();
   const [player, setPlayer] = React.useState(null);
+  const [name, setName] = React.useState("");
 
+  const styles = useStyles();
   const BASE_URL = "http://localhost:3333";
 
   function handleKeyUp(event: React.KeyboardEvent): void {
@@ -46,8 +47,12 @@ export function App() {
       fetch(`${BASE_URL}/stats/${input.value}`).then((response) => {
         response.json().then((data) => {
           setPlayer(data);
+          setName(input.value);
         });
       });
+    } else if (input.value === "" && event.key === "Enter") {
+      setPlayer(null);
+      setName("");
     }
   }
 
@@ -57,7 +62,6 @@ export function App() {
         <div className={styles.header}>
           <img src={brand} alt="brand" />
         </div>
-        {player && JSON.stringify(player)}
         <div className={styles.searchBar}>
           <Label htmlFor="player" size="large">
             Search by name
@@ -71,6 +75,12 @@ export function App() {
             onKeyUp={handleKeyUp}
           />
         </div>
+        {name && (
+          <h2 style={{ marginBottom: "10px", marginTop: "30px" }}>
+            Personal scores for <strong>{name}</strong>
+          </h2>
+        )}
+        {player && JSON.stringify(player)}
       </div>
     </div>
   );
