@@ -1,11 +1,11 @@
 import backgroundImage from "./assets/images/background.jpg";
 import brand from "./assets/images/brand.png";
-import { makeStyles, useId, Input, Label } from "@fluentui/react-components";
+import { makeStyles, Input, Label } from "@fluentui/react-components";
 import React from "react";
 
 const useStyles = makeStyles({
   wrapper: {
-    height: "100vh",
+    height: "100%",
     backgroundColor: "#000",
     color: "#fff",
   },
@@ -16,7 +16,8 @@ const useStyles = makeStyles({
     marginLeft: "auto",
     marginRight: "auto",
     paddingTop: "40px",
-    height: "100vh",
+    paddingBottom: "40px",
+    height: "calc(100vh + 50px)",
     backgroundImage: `url(${backgroundImage})`,
     backgroundPositionX: "center",
     backgroundPositionY: "top",
@@ -34,14 +35,19 @@ const useStyles = makeStyles({
 });
 
 export function App() {
-  const usernameId = useId("username");
   const styles = useStyles();
-  const [username, setUsername] = React.useState("");
+  const [player, setPlayer] = React.useState(null);
+
+  const BASE_URL = "http://localhost:3333";
 
   function handleKeyUp(event: React.KeyboardEvent): void {
     const input = event.target as HTMLInputElement;
     if (input.value != "" && event.key === "Enter") {
-      setUsername(input.value);
+      fetch(`${BASE_URL}/stats/${input.value}`).then((response) => {
+        response.json().then((data) => {
+          setPlayer(data);
+        });
+      });
     }
   }
 
@@ -51,14 +57,14 @@ export function App() {
         <div className={styles.header}>
           <img src={brand} alt="brand" />
         </div>
-        {username}
+        {player && JSON.stringify(player)}
         <div className={styles.searchBar}>
-          <Label htmlFor={usernameId} size="large">
-            Search Username
+          <Label htmlFor="player" size="large">
+            Search by name
           </Label>
           <Input
-            id={usernameId}
-            name="username"
+            id="player"
+            name="player"
             size="large"
             style={{ width: "100%" }}
             autoComplete="off"
