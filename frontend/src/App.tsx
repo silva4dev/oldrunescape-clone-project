@@ -1,7 +1,10 @@
+import React from "react";
+import { makeStyles, Input, Label, Spinner } from "@fluentui/react-components";
 import backgroundImage from "./assets/images/background.jpg";
 import brand from "./assets/images/brand.png";
-import { makeStyles, Input, Label } from "@fluentui/react-components";
-import React from "react";
+import scrollMiddle from "./assets/images/scroll-middle.gif";
+
+import { PlayerSkills } from "./components/PlayerSkills";
 
 const useStyles = makeStyles({
   wrapper: {
@@ -32,27 +35,52 @@ const useStyles = makeStyles({
       marginBottom: "10px",
     },
   },
+  scrollMiddle: {
+    backgroundImage: `url(${scrollMiddle})`,
+    backgroundRepeat: "no-repeat",
+  },
+  spinner: {
+    "> label": {
+      color: "white",
+    },
+  },
 });
 
 export function App() {
-  const [player, setPlayer] = React.useState(null);
+  const [player, setPlayer] = React.useState([]);
   const [name, setName] = React.useState("");
+  const [error, setError] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
 
   const styles = useStyles();
+
   const BASE_URL = "http://localhost:3333";
 
-  function handleKeyUp(event: React.KeyboardEvent): void {
+  function handleKeyUp(event: React.KeyboardEvent) {
     const input = event.target as HTMLInputElement;
     if (input.value != "" && event.key === "Enter") {
       fetch(`${BASE_URL}/stats/${input.value}`).then((response) => {
-        response.json().then((data) => {
-          setPlayer(data);
-          setName(input.value);
-        });
+        response
+          .json()
+          .then((data) => {
+            setLoading(true);
+            setName(input.value);
+            if (data["status"] != "404") {
+              setPlayer([data] as any);
+              setError(false);
+            } else {
+              setPlayer([]);
+              setError(true);
+            }
+          })
+          .catch(() => {
+            setPlayer([]);
+            setError(true);
+          })
+          .finally(() => {
+            setTimeout(() => setLoading(false), 2000);
+          });
       });
-    } else if (input.value === "" && event.key === "Enter") {
-      setPlayer(null);
-      setName("");
     }
   }
 
@@ -75,12 +103,25 @@ export function App() {
             onKeyUp={handleKeyUp}
           />
         </div>
+
         {name && (
           <h2 style={{ marginBottom: "10px", marginTop: "30px" }}>
             Personal scores for <strong>{name}</strong>
           </h2>
         )}
-        {player && JSON.stringify(player)}
+
+        {loading && (
+          <Spinner
+            appearance="primary"
+            className={styles.spinner}
+            size="huge"
+            label="Loading..."
+          />
+        )}
+
+        {!loading && (
+          <PlayerSkills player={player} error={error} styles={styles} />
+        )}
       </div>
     </div>
   );
