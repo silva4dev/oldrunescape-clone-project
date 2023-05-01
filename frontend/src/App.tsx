@@ -2,9 +2,8 @@ import React from "react";
 import { makeStyles, Input, Label, Spinner } from "@fluentui/react-components";
 import backgroundImage from "./assets/images/background.jpg";
 import brand from "./assets/images/brand.png";
-import scrollMiddle from "./assets/images/scroll-middle.gif";
-
-import { PlayerSkills } from "./components/PlayerSkills";
+import { useGlobalContext } from "./context";
+import { PlayerList } from "./components/PlayerList";
 
 const useStyles = makeStyles({
   wrapper: {
@@ -35,52 +34,32 @@ const useStyles = makeStyles({
       marginBottom: "10px",
     },
   },
-  scrollMiddle: {
-    backgroundImage: `url(${scrollMiddle})`,
-    backgroundRepeat: "no-repeat",
-  },
   spinner: {
     "> label": {
       color: "white",
     },
+    marginTop: "40px",
+  },
+  personalScore: {
+    marginBottom: "10px",
+    marginTop: "30px",
+  },
+  input: {
+    fontSize: "16px",
+    fontWeight: "bold",
   },
 });
 
-export function App() {
-  const [player, setPlayer] = React.useState([]);
+export const App = () => {
+  const { setParams, isLoading, player } = useGlobalContext();
   const [name, setName] = React.useState("");
-  const [error, setError] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-
   const styles = useStyles();
-
-  const BASE_URL = "http://localhost:3333";
 
   function handleKeyUp(event: React.KeyboardEvent) {
     const input = event.target as HTMLInputElement;
     if (input.value != "" && event.key === "Enter") {
-      fetch(`${BASE_URL}/stats/${input.value}`).then((response) => {
-        response
-          .json()
-          .then((data) => {
-            setLoading(true);
-            setName(input.value);
-            if (data["status"] != "404") {
-              setPlayer([data] as any);
-              setError(false);
-            } else {
-              setPlayer([]);
-              setError(true);
-            }
-          })
-          .catch(() => {
-            setPlayer([]);
-            setError(true);
-          })
-          .finally(() => {
-            setTimeout(() => setLoading(false), 2000);
-          });
-      });
+      setName(input.value);
+      setParams(`/stats/${input.value}`);
     }
   }
 
@@ -91,7 +70,7 @@ export function App() {
           <img src={brand} alt="brand" />
         </div>
         <div className={styles.searchBar}>
-          <Label htmlFor="player" size="large">
+          <Label htmlFor="player" className={styles.input}>
             Search by name
           </Label>
           <Input
@@ -105,12 +84,12 @@ export function App() {
         </div>
 
         {name && (
-          <h2 style={{ marginBottom: "10px", marginTop: "30px" }}>
+          <h1 className={styles.personalScore}>
             Personal scores for <strong>{name}</strong>
-          </h2>
+          </h1>
         )}
 
-        {loading && (
+        {isLoading && (
           <Spinner
             appearance="primary"
             className={styles.spinner}
@@ -119,10 +98,8 @@ export function App() {
           />
         )}
 
-        {!loading && (
-          <PlayerSkills player={player} error={error} styles={styles} />
-        )}
+        {!isLoading && <PlayerList player={player} />}
       </div>
     </div>
   );
-}
+};
